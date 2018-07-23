@@ -473,6 +473,36 @@ def dashboard(request):
     return TemplateResponse(request, 'dashboard.html', params)
 
 @staff_member_required
+def explorer_organzations(request, handle):
+    """Handle displaying the organizations on the explorer."""
+    # TODO : Wire to backend
+    orgs = [{
+        'logo': '/v2/images/project_logos/metamask.png',
+        'profile': 'metamask',
+        'is_hiring': True,
+    }, {
+        'logo': '/v2/images/project_logos/augur.png',
+        'profile': 'augur',
+    }, {
+        'logo': '/v2/images/project_logos/augur.png',
+        'profile': 'augur',
+    },  {
+        'logo': '/v2/images/project_logos/augur.png',
+        'profile': 'augur',
+    }]
+
+    params = {
+        'active': 'organizations',
+        'title': _('Organizations Explorer'),
+        'orgs': orgs,
+        'profile': profile_helper(handle),
+        'count': 2,
+    }
+
+    return TemplateResponse(request, '_dashboard/organizations.html', params)
+
+
+@staff_member_required
 def organizations(request):
     """Handle displaying the organizations."""
 

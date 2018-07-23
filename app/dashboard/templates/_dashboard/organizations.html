@@ -1,0 +1,178 @@
+{% comment %}
+  Copyright (C) 2018 Gitcoin Core
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    {% include 'shared/head.html' %}
+    {% include 'shared/cards.html' %}
+    <link rel="stylesheet" href={% static "v2/css/dashboard.css" %}>
+    <link rel="stylesheet" href={% static "v2/css/profile.css" %}>
+    <link rel="stylesheet" href={% static "v2/css/tag.css" %}>
+
+    <style>
+      .profile-bounties--loading {
+        background-position: center;
+        margin-bottom: 4rem;
+      }
+
+      #sidebar_container {
+        background: #F2F6F9;
+      }
+
+      #sidebar_container h2 {
+        font-weight: bold;
+      }
+
+      .sidebar-header {
+        color: #007bff;
+        font-weight: bold;
+      }
+
+      .bounty_row .avatar-container {
+        text-align: center;
+      }
+
+      .org-list {
+        display: inline-block;
+        border: 1px solid #999;
+        width: 3.2rem;
+        height: 3.2rem;
+        position: relative;
+        text-align: center;
+      }
+
+      .org-list img {
+        position: absolute;
+        max-height: 2rem;
+        max-width: 2rem;
+        margin-left: -15px;
+        margin-top: 9px;
+        z-index: 2;
+      }
+
+      .tag.org-hiring {
+        margin: 0;
+        bottom: 0;
+        right: 0;
+        position: absolute;
+        min-width: 0;
+      }
+
+      .tag.org-hiring p {
+        padding: 2px 2px;
+        font-size: 0.5rem;
+      }
+    </style>
+  </head>
+
+  <body class="interior {{active}}">
+    {% include 'shared/tag_manager_2.html' %}
+    <div class="container-fluid header dash">
+      {% include 'shared/nav.html' %}
+    </div>
+    <div id="dashboard-content" class="row no-gutter">
+      <div class="col-12 col-lg-3 col-xl-2 text-center" id="sidebar_container">
+        <p class="sidebar-header my-4 font-body">Browse Organzations</p>
+        <h2 class="font-subheader mb-4">{{ count }} Projects</h2>
+        <div class="mx-4 text-left">
+          {% for org in orgs %}
+            <a href="org/{{org.profile}}" class="org-list mx-1 my-2">
+              <img src="{% static org.logo %}">
+              {% if org.is_hiring %}
+                <div class="tag org-hiring">
+                  <p>Hiring</p>
+                </div>
+              {% endif %}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-9 col-xl-10 body">
+        <div class="container-fluid" id="bounties">
+          <div id="dashboard-title" class="hidden">
+            {% include 'shared/search_bar.html' %}
+            <div class="row mt-2 mb-2">
+              <div class="col-12 offset-lg-1 col-lg-10 title-row">
+                <div class="col-12 col-md-4">
+                  <span id="filter" class="font-title"></span>
+                  <span id="matches" class="font-body"></span>
+                </div>
+                <div class="col-12 col-md-8 bounty-info" id="funding-info">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="container">
+            <div class="row container">
+              <div class="col-12 py-4">
+                <div class="pb-2 profile-section-title">
+                  {% trans "Open Bounties" %}
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="container profile-bounties featured-bounties profile-bounties--loading">
+                </div>
+              </div>
+            </div>
+            <div class="row container ">
+              <div class="col-12 py-4">
+                <div class="pb-2 profile-section-title">
+                  {% trans "In Progress" %}
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="container profile-bounties profile-bounties--in--progress profile-bounties--loading">
+                </div>
+              </div>
+            </div>
+          </div>
+          {% include 'shared/result.html' %}
+        </div>
+      </div>
+    </div>
+
+    {% include 'shared/result.html' %}
+
+    {% include 'shared/analytics.html' %}
+    {% include 'shared/footer_scripts.html' %}
+    {% include 'shared/rollbar.html' %}
+    {% include 'shared/footer.html' %}
+    {% include 'shared/messages.html' %}
+
+    <script src="/static/v2/js/tokens_dynamic.js"></script>
+    <script src="{% static "v2/js/tokens.js" %}"></script>
+    <script>
+      document.keywords = {{keywords | safe}};
+    </script>
+    <script>
+      var open_issues_uri, in_progress_issues_uri;
+      if(document.location.href.startsWith('https://gitcoin.co')) {
+        open_issues_uri = 'network=mainnet&idx_status=open&keyword={{ profile }}';
+        in_progress_issues_uri = 'network=mainnet&idx_status=started&keyword={{ profile }}';
+      } else {
+        open_issues_uri = 'idx_status=open&keyword={{ profile }}';
+        in_progress_issues_uri = 'idx_status=started&keyword={{ profile }}';
+      }
+      fetchBountiesAndAddToList(open_issues_uri, '.featured-bounties');
+      fetchBountiesAndAddToList(in_progress_issues_uri, '.profile-bounties--in--progress');
+    </script>
+  </body>
+</html>
